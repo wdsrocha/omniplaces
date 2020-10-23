@@ -51,8 +51,8 @@ const useDebouncedValue = (value: string, delayInMs: number) => {
   return debouncedValue
 }
 
-async function api<T>(url: string): Promise<T> {
-  const response = await fetch(url)
+async function api<T>(url: string, init?: RequestInit): Promise<T> {
+  const response = await fetch(url, init)
   if (!response.ok) {
     throw new Error(response.statusText)
   }
@@ -66,6 +66,12 @@ export const Home = () => {
   // const loading = open && options.length === 0
   const [loading, setLoading] = useState(false)
   const debouncedSearchTerm = useDebouncedValue(input, DEBOUNCE_DELAY_IN_MS)
+  const [geolocation, setGeolocation] = useState('')
+
+  navigator.geolocation.getCurrentPosition(
+    ({ coords: { longitude, latitude } }) =>
+      setGeolocation(`${latitude},${longitude}`)
+  )
 
   useEffect(() => {
     if (input.trim().length) {
@@ -84,7 +90,9 @@ export const Home = () => {
       if (debouncedSearchTerm.trim().length) {
         setLoading(true)
         const url = `${BASE_URL}/suggest?q=${encodeURI(debouncedSearchTerm)}`
-        const response = await api<SuggestAddressesResponse>(url)
+        const response = await api<SuggestAddressesResponse>(url, {
+          headers: { geolocation },
+        })
         if (!canceled) {
           setOptions(response.suggestions)
         }
