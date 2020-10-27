@@ -3,6 +3,7 @@ import { Context } from 'src/common';
 export enum AdapterName {
   Google,
   Here,
+  Baidu,
 }
 
 export class MatchInterval {
