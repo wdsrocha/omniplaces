@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { CircularProgress, TextField } from '@material-ui/core'
 import Autocomplete from '@material-ui/lab/Autocomplete'
 
-const BASE_URL = 'http://fb0c64af9d81.ngrok.io'
+const BASE_URL = 'https://fb0c64af9d81.ngrok.io'
 // const BASE_URL = 'http://localhost:2000'
 
 interface Address {
