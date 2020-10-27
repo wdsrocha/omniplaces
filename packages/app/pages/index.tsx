@@ -1,17 +1,10 @@
 import Head from 'next/head'
 import React, { useEffect, useState } from 'react'
-import {
-  Card,
-  CardContent,
-  CardActions,
-  Typography,
-  CircularProgress,
-  TextField,
-} from '@material-ui/core'
+import { CircularProgress, TextField } from '@material-ui/core'
 import Autocomplete from '@material-ui/lab/Autocomplete'
 
-const BASE_URL = 'http://caf7b676eba4.ngrok.io'
-// const BASE_URL = 'http://localhost:2000'
+// const BASE_URL = 'http://caf7b676eba4.ngrok.io'
+const BASE_URL = 'http://localhost:2000'
 
 interface CountryType {
   name: string
@@ -63,7 +56,6 @@ export const Home = () => {
   const [input, setInput] = useState('')
   const [open, setOpen] = useState(false)
   const [options, setOptions] = useState<AddressSuggestion[]>([])
-  // const loading = open && options.length === 0
   const [loading, setLoading] = useState(false)
   const debouncedSearchTerm = useDebouncedValue(input, DEBOUNCE_DELAY_IN_MS)
   const [geolocation, setGeolocation] = useState('')
