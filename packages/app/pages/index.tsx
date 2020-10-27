@@ -3,11 +3,17 @@ import React, { useEffect, useState } from 'react'
 import { CircularProgress, TextField } from '@material-ui/core'
 import Autocomplete from '@material-ui/lab/Autocomplete'
 
-// const BASE_URL = 'http://caf7b676eba4.ngrok.io'
-const BASE_URL = 'http://localhost:2000'
+const BASE_URL = 'http://fb0c64af9d81.ngrok.io'
+// const BASE_URL = 'http://localhost:2000'
 
-interface CountryType {
-  name: string
+interface Address {
+  street?: string
+  number?: string
+  neighborhood?: string
+  city?: string
+  state?: string
+  country?: string
+  postalCode?: string
 }
 
 interface MatchInterval {
@@ -59,11 +65,7 @@ export const Home = () => {
   const [loading, setLoading] = useState(false)
   const debouncedSearchTerm = useDebouncedValue(input, DEBOUNCE_DELAY_IN_MS)
   const [geolocation, setGeolocation] = useState('')
-
-  navigator.geolocation.getCurrentPosition(
-    ({ coords: { longitude, latitude } }) =>
-      setGeolocation(`${latitude},${longitude}`)
-  )
+  const [selectedAddress, setSelectedAddress] = useState<Address>({})
 
   useEffect(() => {
     if (input.trim().length) {
@@ -81,6 +83,12 @@ export const Home = () => {
     ;(async () => {
       if (debouncedSearchTerm.trim().length) {
         setLoading(true)
+        if (!geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            ({ coords: { longitude, latitude } }) =>
+              setGeolocation(`${latitude},${longitude}`)
+          )
+        }
         const url = `${BASE_URL}/suggest?q=${encodeURI(debouncedSearchTerm)}`
         const response = await api<SuggestAddressesResponse>(url, {
           headers: { geolocation },
@@ -102,6 +110,19 @@ export const Home = () => {
     }
   }, [open])
 
+  const handleChange = async (
+    _event: React.ChangeEvent<{}>,
+    value: AddressSuggestion
+  ) => {
+    if (!value) {
+      setSelectedAddress({})
+      return
+    }
+    const url = `${BASE_URL}/lookup/${value.id}`
+    const response = await api<Address>(url, { headers: { geolocation } })
+    setSelectedAddress(response)
+  }
+
   return (
     <>
       <Head>
@@ -111,7 +132,7 @@ export const Home = () => {
       <body>
         <section>
           <Autocomplete
-            style={{ width: '100%' }}
+            onChange={handleChange}
             freeSolo
             open={open}
             onOpen={() => {
@@ -150,17 +171,7 @@ export const Home = () => {
               />
             )}
           />
-          <pre>
-            {JSON.stringify(
-              options.map((option) => {
-                return {
-                  description: option.description,
-                }
-              }),
-              null,
-              2
-            )}
-          </pre>
+          <pre>{JSON.stringify(selectedAddress, null, 2)}</pre>
         </section>
       </body>
     </>
